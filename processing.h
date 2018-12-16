@@ -4,7 +4,7 @@
 #include "inc/Eigen/Dense"
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Mtype;
-typedef double Dtype;
+typedef float Dtype;
 
 Image horizontal_carving(Image const &, double const scale);
 Image vertical_carving(Image const &, double const scale);
