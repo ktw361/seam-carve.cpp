@@ -39,9 +39,9 @@ Image::Image(unsigned char const *img_data, int const data_h, int const data_w, 
     for (int i = 0; i < c; ++i) {
         arr_[i] = Mtype::Zero(h, w);
     }
-    arr_[0]= _red.cast<float>();
-    arr_[1]= _green.cast<float>();
-    arr_[2]= _blue.cast<float>();
+    arr_[0]= _red.cast<Dtype>();
+    arr_[1]= _green.cast<Dtype>();
+    arr_[2]= _blue.cast<Dtype>();
 }
 
 Image::Image(Image const & other): h(other.h), w(other.w), c(other.c)
@@ -77,6 +77,7 @@ Image::operator=(Image const & other)
     for (int i = 0; i < d_size; ++i) {
         data[i] = other.data[i];
     }
+    arr_ = new Mtype[c];
     for (int i = 0; i < c; ++i) {
         arr_[i] = other.arr_[i];
     }
@@ -101,9 +102,24 @@ Image::blue()
     return arr_[2];
 }
 
+const Mtype & 
+Image::operator[] (std::size_t i) const {
+    return this->arr_[i];
+}
+
+Mtype & 
+Image::operator[] (std::size_t i) {
+    return this->arr_[i];
+}
+
 Image & 
 Image::operator+=(Image const & other){
-    // TODO
+    if ((h != other.h) || (w != other.w) || (c != other.c)) {
+        throw "Image size not match\n";
+    }
+    for (int i = 0; i < c; ++i) {
+        arr_[i] += other[i];  
+    }
     return *this;
 }
 
@@ -134,7 +150,7 @@ imsave(char const *filename, Image const & out)
 }
 
 Image
-Mrepreat(Mtype const & m)
+Mrepeat(Mtype const & m)
 {
     Image img(m.rows(), m.cols(), I_channels );
     for (int i = 0; i < img.c; ++i) {
