@@ -1,9 +1,14 @@
 #include "../image.h"
-#include "../image.cpp"
+//#include "../image.cpp"
 #include <gtest/gtest.h>
 #include <iostream>
 
 TEST(ImageTest, PositiveNos) {
+    //
+    // Index type must be the same
+    //
+    ASSERT_EQ(typeid(Indtype),  typeid(MIndtype::Index));
+
     Image img1, img2;
     const char fname[] = "/home/damon/QtWorkSapce/carveCpp/Test/img_test.jpg";
     const char fname_out[] = "/home/damon/QtWorkSapce/carveCpp/Test/img_out.jpg";
@@ -32,9 +37,5 @@ TEST(ImageTest, PositiveNos) {
     }
     ASSERT_EQ(img1.h,           img2.h);
     ASSERT_EQ(img1.d_size,      img2.d_size);
-}
 
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }
