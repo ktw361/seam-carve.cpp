@@ -1,3 +1,0 @@
-/home/damon/QtWorkSapce/carveCpp/Test/CMakeFiles/edit_cache.dir
-/home/damon/QtWorkSapce/carveCpp/Test/CMakeFiles/rebuild_cache.dir
-/home/damon/QtWorkSapce/carveCpp/Test/CMakeFiles/runTests.dir

@@ -5,6 +5,7 @@
 !/Test/*.cpp
 !/Test/*.h
 !/Test/CMakeLists.txt
+Session.vim
 
 *~
 *.autosave

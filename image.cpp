@@ -12,7 +12,7 @@ Image::Image(): h(0), w(0), c(0), d_size(0), data(nullptr), arr_(nullptr)
 {
 }
 
-Image::Image(int const data_h, int const data_w, int const data_c): h(data_h), w(data_w), c(data_c)
+Image::Image(int const t_h, int const t_w, int const t_c): h(t_h), w(t_w), c(t_c)
 {
     d_size = h * w * c;
 
@@ -23,7 +23,7 @@ Image::Image(int const data_h, int const data_w, int const data_c): h(data_h), w
     }
 }
 
-Image::Image(unsigned char const *img_data, int const data_h, int const data_w, int const data_c) : h(data_h), w(data_w), c(data_c)
+Image::Image(unsigned char const *img_data, int const t_h, int const t_w, int const t_c) : h(t_h), w(t_w), c(t_c)
 {
     d_size = h * w * c;
     //
