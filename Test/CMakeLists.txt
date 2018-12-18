@@ -12,6 +12,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 file(GLOB SRC
     "../image.cpp"
     "../processing.cpp"
+    "../operations.cpp"
 )
 add_executable(runTests
     mainTest.cpp

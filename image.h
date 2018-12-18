@@ -47,5 +47,3 @@ public:
 Image operator+(Image const & lhs, Image const & rhs);
 
 Image imread(char const *filename);
-
-Image Mrepeat(Mtype const & m); 
