@@ -114,6 +114,7 @@ Image::operator[] (std::size_t i) {
 
 Image & 
 Image::operator+=(Image const & other){
+    // TODO assert?
     if ((h != other.h) || (w != other.w) || (c != other.c)) {
         throw "Image size not match\n";
     }
@@ -147,14 +148,4 @@ imsave(char const *filename, Image const & out)
     const int component = 3;
     const int quality = 100;
     stbi_write_jpg(filename, out.w, out.h, component, out.data, quality);
-}
-
-Image
-Mrepeat(Mtype const & m)
-{
-    Image img(m.rows(), m.cols(), I_channels );
-    for (int i = 0; i < img.c; ++i) {
-        img.arr_[i] = m;
-    }
-    return img;
 }

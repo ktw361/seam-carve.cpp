@@ -5,9 +5,10 @@
 #include <iterator>
 
 #include "image.h"
+#include "operations.h"
 #include "inc/Eigen/Dense"
 
-using namespace Eigen;
+//using namespace Eigen;
 // 重命名Mtype？
 Mtype 
 calc_energy(Image const & img)
@@ -21,17 +22,11 @@ calc_energy(Image const & img)
     Image filter_du = Mrepeat(kern_du);
     Image filter_dv = Mrepeat(kern_dv);
 
-    Image convolved = convolve(img, filter_du) + convolve(img, filter_dv);
-    // 
-    // calculate absolute
-    //
-    for (int i = 0; i != convolved.c; ++i ) {
-        convolved[i] = convolved[i].array().abs();
-    }
-    Mtype energy_map(convolved[0]);
-    for (int i = 1; i != convolved.c; ++i) {
-        energy_map += convolved[i];
-    }
+    Image convolved = convolve(img, filter_du, Reflect) + 
+                      convolve(img, filter_dv, Reflect);
+    convolved = absolute(convolved);
+
+    Mtype energy_map = channel_sum(convolved);
     return energy_map;
 }
 
@@ -84,40 +79,6 @@ process_seam(Image const & original, MIndtype removed)
         }
     }
     return image_seam;
-}
-
-
-// Depth One convolution
-Mtype 
-convolve(Mtype const & img, Mtype const & kern, ConvMode mode )
-{
-    // TODO reflect mode
-    int rows = img.rows(), cols = img.cols();
-    int kern_h = kern.rows(), kern_w = kern.cols();
-//    int kern_size = kern_h * kern_w;
-    Mtype ret(rows, cols);
-    Mtype img_(rows + kern_h - 1, cols +  kern_w - 1);
-    img_ << img, Mtype::Zero(rows, kern_w - 1),
-            Mtype::Zero(kern_h - 1, cols + kern_w - 1);
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            ret(i, j) = (img_.block(i, j, kern_h, kern_w).array() * kern.array()).sum();
-//            Mtype kern_temp = kern;
-//            Dtype temp = Map<RowVectorXd>(img_.block(i, j, kern_h, kern_w).data(), kern_size) * Map<Eigen::VectorXd>(kern_temp.data(), kern_size);
-//            ret(i, j) = temp;
-        }
-    }
-    return ret;
-}
-
-Image
-convolve(Image const & img, Image const & kern, ConvMode mode )
-{
-    Image ret(img.h, img.w, img.c);
-    for (int i = 0; i < img.c; ++i) {
-        ret.arr_[i] = convolve(img.arr_[i], kern.arr_[i], mode);
-    }
-    return ret;
 }
 
 std::pair<Image, std::vector<Indtype> >
@@ -178,7 +139,7 @@ horizontal_carving(Image const & image, double const scale)
                 );
     }
     // Eigen Happens to be ColMajor !!!
-    Map<MIndtype> removed(pick_list_all.data(), h, w - w_finish);
+    auto removed = asMtype(pick_list_all, h, w - w_finish);
     Image image_seam = process_seam(image, removed);
 
     return {img_ret, image_seam};
@@ -187,22 +148,11 @@ horizontal_carving(Image const & image, double const scale)
 std::pair<Image, Image>
 vertical_carving(Image const & image, double const scale)
 {
-    Image img = image;
-    for (int i = 0; i != image.c; ++i ) {
-        img[i] = img[i].transpose();
-    
-    }
-    std::swap(img.h, img.w);
+    Image img = rotate90(image);
     // ??? 构造一个新的？
     auto hcarve_ret = horizontal_carving(img, scale);
-    img = hcarve_ret.first;
-    Image image_seam = hcarve_ret.second;
-    for (int i = 0; i != image.c; ++i ) {
-        img[i] = img[i].transpose();
-        image_seam[i] = image_seam[i].transpose();
-    }
-    std::swap(img.h, img.w);
-    std::swap(image_seam.h, image_seam.w);
+    img = rotate90(hcarve_ret.first);
+    Image image_seam = rotate90(hcarve_ret.second);
 
     return {img, image_seam};
 }
