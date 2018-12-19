@@ -104,16 +104,16 @@ carve_one_column(Image const & img)
     // Compare speed???
     //
     for (int j = 0; j != w - 1; ++j) {
-        img_next(h - 1, j) = img(h - 1, j + (j >= pick ? j + 1 : j) );
-        img_next(h - 1, j) = img(h - 1, j + (j >= pick ? j + 1 : j) );
-        img_next(h - 1, j) = img(h - 1, j + (j >= pick ? j + 1 : j) );
+        img_next[0](h - 1, j) = img[0](h - 1, j >= pick ? j + 1 : j );
+        img_next[1](h - 1, j) = img[1](h - 1, j >= pick ? j + 1 : j );
+        img_next[2](h - 1, j) = img[2](h - 1, j >= pick ? j + 1 : j );
     }
     for (int i = h - 2; i >= 0; --i) {
         pick = track(i, pick);
         for (int j = 0; j!= w - 1; ++j) {
-            img_next(i, j) = img(i, j + (j >= pick ? j + 1 : j) ); 
-            img_next(i, j) = img(i, j + (j >= pick ? j + 1 : j) ); 
-            img_next(i, j) = img(i, j + (j >= pick ? j + 1 : j) ); 
+            img_next[0](i, j) = img[0](i, j >= pick ? j + 1 : j ); 
+            img_next[1](i, j) = img[1](i, j >= pick ? j + 1 : j ); 
+            img_next[2](i, j) = img[2](i, j >= pick ? j + 1 : j ); 
         }
         pick_list.push_back(pick);
     }
