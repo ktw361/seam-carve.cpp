@@ -1,6 +1,9 @@
 #include "image.h"
 
 #include <vector>
+#include <iostream>
+#include <fstream>
+
 #include "inc/Eigen/Dense"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -135,6 +138,10 @@ operator+(Image const & lhs, Image const & rhs)
 Image 
 imread(char const *filename) 
 {
+    if (!std::ifstream(filename)) {
+        std::cerr << "File not exist\n";
+        throw "File not exist";
+    }
     int w, h, c;
     unsigned char *data = stbi_load(filename, &w, &h, &c, 0);
     Image img(data, h, w, c);

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <string>
 
@@ -21,6 +22,10 @@ main(int argc, char **argv)
     const char *in_filename = argv[3];
     const char *out_filename = argv[4];
 
+    if (!std::ifstream(in_filename)) {
+        std::cerr << "File not exist, quit\n";
+        return -1;
+    }
     Image img = imread(in_filename);
     std::cout << "Load " << in_filename << ' ' << img.w << ' ' << img.h << ' ' << img.c << std::endl;
 
