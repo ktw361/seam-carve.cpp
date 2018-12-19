@@ -24,16 +24,21 @@ main(int argc, char **argv)
     Image img = imread(in_filename);
     std::cout << "Load " << in_filename << ' ' << img.height() << ' ' << img.width() << ' ' << img.channels << std::endl;
 
-//    if (which_axis == 'h')
-//        Image out = vertical_carving(img, scale);
-//    else if (which_axis == 'w')
-//        Image out = horizontal_carving(img, scale);
-//    else {
-//        std::cerr << "usage: carve.py <h/w> <scale> <image_in> <image_out> " << std::endl;
-//        return -1;
-//    }
+    if (which_axis == 'h') {
+        auto out = vertical_carving(img, scale); 
+        Image im_out = out.first;
+        Image seam = out.second;
+        imsave(out_filename, im_out);
+    }
+    else if (which_axis == 'w') {
+        auto out = horizontal_carving(img, scale);
+        Image im_out = out.first;
+        Image seam = out.second;
+    }
+    else {
+        std::cerr << "usage: carve.py <h/w> <scale> <image_in> <image_out> " << std::endl;
+        return -1;
+    }
 
-    Image out = img;
-    imsave(out_filename, out);
     return 0;
 }

@@ -16,12 +16,12 @@ absolute(Image const & img)
     return absolute;
 }
 
-Mtype
+Image 
 channel_sum(Image const & img)
 {
-    Mtype ret = img[0];
+    Image ret = img[0];
     for (int i = 1; i != img.channels; ++i) {
-        ret.array() += img[i].array();
+        ret[0].array() += img[i].array();
     }
     return ret;
 }
@@ -44,6 +44,15 @@ Mrepeat(Mtype const & mat)
         img.arr_[i] = mat;
     }
     return img;
+}
+
+Image 
+Mrepeat(Image const & img)
+{
+    if (img.channels != 1) {
+        throw "Mrepeat: img channel not one, don't know how to repeat";
+    }
+    return Mrepeat(img[0]);
 }
 
 MIndtype 
@@ -118,9 +127,10 @@ convolve(Mtype const & img, Mtype const & kern, ConvMode mode)
 Image
 convolve(Image const & img, Image const & kern, ConvMode mode )
 {
-    Image ret(img.height(), img.width(), img.channels);
+    Image ret(img.height(), img.width(), 1);
     for (int i = 0; i < img.channels; ++i) {
-        ret.arr_[i] = convolve(img.arr_[i], kern.arr_[i], mode);
+        ret.arr_[0] += convolve(img.arr_[i], kern.arr_[i], mode);
     }
-    return ret;
+    Image ret_repeat = Mrepeat(ret);
+    return ret_repeat;
 }

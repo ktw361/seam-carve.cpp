@@ -8,14 +8,17 @@
 Image
 absolute(Image const & img);
 
-Mtype 
-channel_sum(Image const & mat);
+Image 
+channel_sum(Image const & img);
 
 Image
 rotate90(Image const & img);
 
 Image 
 Mrepeat(Mtype const & mat); 
+
+Image 
+Mrepeat(Image const & img); 
 
 //template<typename T, typename retType>
 //retType
@@ -33,5 +36,6 @@ make_padding(Mtype const & mat, Mtype const & kern, ConvMode mode = Reflect);
 Mtype 
 convolve(Mtype const &, Mtype const &, ConvMode = Reflect);
 
+// Same filter conv for 'channels time'
 Image 
 convolve(Image const &, Image const &, ConvMode = Reflect);

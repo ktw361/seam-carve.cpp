@@ -18,6 +18,8 @@ add_executable(runTests
     mainTest.cpp
     Image_tests.cpp
     convolution_tests.cpp
+    operations_tests.cpp
+    processing_tests.cpp
     ${SRC}
     )
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)

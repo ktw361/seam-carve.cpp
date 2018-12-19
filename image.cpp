@@ -92,19 +92,33 @@ Image::operator=(Image const & other)
     channels = other.channels;
     arr_ = new Mtype[channels];
     for (int i = 0; i < channels; ++i) {
-        arr_[i] = other.arr_[i];
+        arr_[i] = other[i];
     }
     return *this;
 }
 
 const Mtype & 
-Image::operator[] (std::size_t i) const {
+Image::operator[] (std::size_t i) const 
+{
     return this->arr_[i];
 }
 
 Mtype & 
-Image::operator[] (std::size_t i) {
+Image::operator[] (std::size_t i)
+{
     return this->arr_[i];
+}
+
+Dtype &
+Image::operator() (Indtype i, Indtype j) const
+{
+    return arr_[0](i, j);
+}
+
+Dtype &
+Image::operator() (Indtype i, Indtype j) 
+{
+    return arr_[0](i, j);
 }
 
 Image & 
@@ -157,8 +171,13 @@ imsave(char const *filename, Image const & out)
     
     Eigen::Matrix<internal_dtype, Eigen::Dynamic, Eigen::Dynamic> mat_out[3];
     mat_out[0]= out[0].cast<internal_dtype>();
-    mat_out[1]= out[1].cast<internal_dtype>();
-    mat_out[2]= out[2].cast<internal_dtype>();
+    if (c == 1) {
+        mat_out[1]= out[1].cast<internal_dtype>();
+        mat_out[2]= out[2].cast<internal_dtype>();
+    } else {
+        mat_out[1]= mat_out[0];
+        mat_out[2]= mat_out[0];
+    }
 
     // 用memcpy？
     for (int i = 0; i != h; ++i) {
