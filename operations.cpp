@@ -113,6 +113,7 @@ convolve(Mtype const & img, Mtype const & kern, ConvMode mode)
     auto flipdg = [&](Mtype m) {
         return m.colwise().reverse().rowwise().reverse();
     };
+    #pragma omp parallel for
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             ret(i, j) = (
@@ -128,6 +129,7 @@ Image
 convolve(Image const & img, Image const & kern, ConvMode mode )
 {
     Image ret(img.height(), img.width(), 1);
+//    #pragma omp parallel for
     for (int i = 0; i < img.channels; ++i) {
         ret.arr_[0] += convolve(img.arr_[i], kern.arr_[i], mode);
     }

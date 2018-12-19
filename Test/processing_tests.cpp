@@ -93,6 +93,12 @@ TEST_F(ProcessingTest, minimal_seam) {
     compare_row_and_col(track, exp_info_track);
 }
 
-//TEST_F(ProcessingTest, carve_one_column) {
-//
-//}
+TEST_F(ProcessingTest, carve_one_column) {
+    auto out = carve_one_column(img_lin_3_4);
+    auto img = out.first;
+    auto pick_list = out.second;
+    std::vector<Dtype> ep_out_1 = {
+        1.0,1.0,1.0,2.0,2.0,2.0,3.0,3.0,3.0,5.0,5.0,5.0,6.0,6.0,6.0,7.0,7.0,7.0,9.0,9.0,9.0,10.0,10.0,10.0,11.0,11.0,11.0,
+    };
+    compare_row_and_col(img, ep_out_1);
+}
