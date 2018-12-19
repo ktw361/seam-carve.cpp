@@ -23,6 +23,7 @@ public:
 
     // 初始化 const？
     int channels; // channels of an image should not change
+    // const 对象的成员也是const？
     Mtype * arr_; // 用智能指针？
 
     Image();
@@ -39,6 +40,9 @@ public:
 
     const Mtype & operator[] (std::size_t i) const;
     Mtype & operator[] (std::size_t i);
+    // (i, j) 返回第一个维度
+    virtual Dtype & operator() (Indtype, Indtype) const;
+    Dtype & operator() (Indtype, Indtype);
 
     Image & operator=(Image const & other);
     Image & operator+=(Image const & other);

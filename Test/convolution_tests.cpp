@@ -39,10 +39,33 @@ TEST(PaddingReflectTest, PositiveNos) {
     }
 }
 
-//TEST(ConvModeTest, PositiveNos) {
-//    Mtype kern(3, 2);
-//    convolve(kern, kern, (ConvMode)(-1));
-//}
+TEST(ConvOnImage, PositiveNos) {
+    //
+    // make linspace
+    //
+    Mtype mat1(4, 3);
+    for (int i = 0; i != 12; ++i) {
+        mat1(i) = i;
+    }
+    Mtype mat = mat1.array().transpose();
+    Image img = Mrepeat(mat);
+
+    Mtype kern_I = Mtype::Zero(3,3);
+    kern_I(1,1) = 1.;
+    Image filter_I = Mrepeat(kern_I);
+
+    Image conved = convolve(img, filter_I);
+    ASSERT_EQ(conved.height(),    3);
+    ASSERT_EQ(conved.width(),     4);
+    ASSERT_EQ(conved.channels,    3);
+    Dtype epct[] = {0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33};;
+    for (int i = 0; i != 3; ++i) {
+        for (int j = 0; j != 4; ++j) {
+            // 故意在第二片上测！, 这是实现
+            EXPECT_EQ(conved[2](i, j),   epct[i * 4 + j]) << i << ' ' << j << '\n';
+        }
+    }
+}
 
 //
 // Conv test of *ZeroPad* mode
