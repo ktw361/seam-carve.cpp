@@ -13,7 +13,7 @@ main(int argc, char **argv)
 //        return -1;
 //    }
     argv[1] = "w";
-    argv[2] = "0.5";
+    argv[2] = "0.99";
     argv[3] = "/home/damon/QtWorkSapce/carveCpp/imgs/scene.jpg";
     argv[4] = "/home/damon/QtWorkSapce/carveCpp/build/out.jpg";
     const char which_axis = *argv[1];
