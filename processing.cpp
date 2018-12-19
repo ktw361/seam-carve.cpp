@@ -58,7 +58,7 @@ minimal_seam(Mtype const & energy_map)
 Image 
 process_seam(Image const & original, MIndtype removed)
 {
-    int h = original.h;
+    int h = original.height();
     int num_seam = removed.cols();
     Image image_seam = original;
 
@@ -84,7 +84,7 @@ process_seam(Image const & original, MIndtype removed)
 std::pair<Image, std::vector<Indtype> >
 carve_one_column(Image const & img)
 {
-    int h = img.h, w = img.w, c = img.c;
+    int h = img.height(), w = img.width(), c = img.channels;
 
     auto energy_map = calc_energy(img);
     auto seam_info = minimal_seam(energy_map);
@@ -121,7 +121,7 @@ carve_one_column(Image const & img)
 std::pair<Image, Image>
 horizontal_carving(Image const & image, double const scale)
 {
-    int h = image.h, w = image.w;
+    int h = image.height(), w = image.width();
     int w_finish = static_cast<Indtype>(w * scale);
 
     Image img_ret = image;

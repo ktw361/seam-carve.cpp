@@ -13,27 +13,29 @@ typedef Eigen::Array<Indtype, Eigen::Dynamic, Eigen::Dynamic> MIndtype;
 //typedef Eigen::Map<Mtype, Eigen::Unaligned, Eigen::InnerStride<3> > Slice;
 typedef Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Unaligned, Eigen::InnerStride<3> > Slice;
 
-struct Image {
+typedef unsigned char internal_dtype;
 
-private:
-    typedef unsigned char internal_dtype;
-    internal_dtype * data; // 干掉这个？
+struct Image {
+    //布局： CWH (按照Eigen 列优先)
+    //stbi: HWC
 
 public:
 
-    int h, w, c;
-    int d_size;
+    // 初始化 const？
+    int channels; // channels of an image should not change
     Mtype * arr_; // 用智能指针？
 
     Image();
     Image(int const t_h, int const t_w, int const t_c);
-    Image(unsigned char const *data, int const t_h, int const t_w, int const t_c);
+    Image(internal_dtype const *data, int const t_h, int const t_w, int const t_c);
+    Image(Mtype const &);
     Image(Image const &);
     ~Image();
 
-    Mtype & red();
-    Mtype & green();
-    Mtype & blue();
+    // ? 作用于非const时候？
+    int height() const;
+    int width() const;
+    int d_size() const;
 
     const Mtype & operator[] (std::size_t i) const;
     Mtype & operator[] (std::size_t i);
