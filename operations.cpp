@@ -10,7 +10,7 @@ Image
 absolute(Image const & img) 
 {
     Image absolute = img;
-    for (int i = 0; i != absolute.c; ++i ) {
+    for (int i = 0; i != absolute.channels; ++i ) {
         absolute[i] = absolute[i].array().abs();
     }
     return absolute;
@@ -20,7 +20,7 @@ Mtype
 channel_sum(Image const & img)
 {
     Mtype ret = img[0];
-    for (int i = 1; i != img.c; ++i) {
+    for (int i = 1; i != img.channels; ++i) {
         ret.array() += img[i].array();
     }
     return ret;
@@ -30,10 +30,9 @@ Image
 rotate90(Image const & img)
 {
     Image ret = img;
-    for (int i = 0; i != ret.c; ++i ) {
+    for (int i = 0; i != ret.channels; ++i ) {
         ret[i] = ret[i].transpose().colwise().reverse();
     }
-    std::swap(ret.h, ret.w);
     return ret;
 }
 
@@ -41,7 +40,7 @@ Image
 Mrepeat(Mtype const & mat)
 {
     Image img(mat.rows(), mat.cols(), I_channels );
-    for (int i = 0; i < img.c; ++i) {
+    for (int i = 0; i < img.channels; ++i) {
         img.arr_[i] = mat;
     }
     return img;
@@ -119,8 +118,8 @@ convolve(Mtype const & img, Mtype const & kern, ConvMode mode)
 Image
 convolve(Image const & img, Image const & kern, ConvMode mode )
 {
-    Image ret(img.h, img.w, img.c);
-    for (int i = 0; i < img.c; ++i) {
+    Image ret(img.height(), img.width(), img.channels);
+    for (int i = 0; i < img.channels; ++i) {
         ret.arr_[i] = convolve(img.arr_[i], kern.arr_[i], mode);
     }
     return ret;

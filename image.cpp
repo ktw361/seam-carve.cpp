@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+//DEBUG
+#include <cstdlib>
 
 #include "inc/Eigen/Dense"
 
@@ -11,98 +13,88 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "inc/stb_image_write.h"
 
-Image::Image(): h(0), w(0), c(0), d_size(0), data(nullptr), arr_(nullptr)
+Image::Image(): channels(0), arr_(nullptr)
 {
 }
 
-Image::Image(int const t_h, int const t_w, int const t_c): h(t_h), w(t_w), c(t_c)
+Image::Image(int const t_h, int const t_w, int const t_c): channels(t_c)
 {
-    d_size = h * w * c;
-
-    data = new unsigned char [h * w * c];
-    arr_ = new Mtype[c];
-    for (int i = 0; i < c; ++i) {
-        arr_[i] = Mtype::Zero(h, w);
+    arr_ = new Mtype[channels];
+    for (int i = 0; i < channels; ++i) {
+        arr_[i] = Mtype::Zero(t_h, t_w);
     }
 }
 
-Image::Image(unsigned char const *img_data, int const t_h, int const t_w, int const t_c) : h(t_h), w(t_w), c(t_c)
+Image::Image(internal_dtype const *img_data, int const t_h, int const t_w, int const t_c): channels(t_c)
 {
-    d_size = h * w * c;
     //
     // img.data take over, CALLER MUST call stbi_free!
     //
-    data = new unsigned char [h*w*c];
-    for (int i=0; i!= h*w*c; ++i) {
+    internal_dtype *data = new unsigned char [t_h * t_w * t_c];
+    for (int i=0; i!= t_h * t_w * t_c; ++i) {
         data[i] = img_data[i];
     }
 
-    Slice _red(data, h, w), _green(data + 1, h, w), _blue(data + 2, h, w);
-    arr_ = new Mtype[c];
-    for (int i = 0; i < c; ++i) {
-        arr_[i] = Mtype::Zero(h, w);
+    arr_ = new Mtype[channels];
+
+    Slice _red(data, t_h, t_w);
+    Slice _green(data + 1, t_h, t_w);
+    Slice _blue(data + 2, t_h, t_w);
+    for (int i = 0; i < channels; ++i) {
+        arr_[i] = Mtype::Zero(t_h, t_w);
     }
     arr_[0]= _red.cast<Dtype>();
     arr_[1]= _green.cast<Dtype>();
     arr_[2]= _blue.cast<Dtype>();
 }
 
-Image::Image(Image const & other): h(other.h), w(other.w), c(other.c)
-{
-    d_size = h * w * c;
-    data = new unsigned char[w*h*c];
-    for (int i = 0; i< w*h*c; ++i) {
-        data[i] = other.data[i];
-    }
+Image::Image(Mtype const & mat): channels(1) {
+    arr_ = new Mtype[1];
+    arr_[0] = mat;
+}
 
-    arr_ = new Mtype[c];
-    for (int i = 0; i!= c; ++i) {
+Image::Image(Image const & other)
+{
+    channels = other.channels;
+    arr_ = new Mtype[channels];
+    for (int i = 0; i!= channels; ++i) {
         arr_[i] = other.arr_[i];
     }
 }
 
 Image::~Image()
 {
-    delete [] data;
     delete [] arr_;
+}
+
+int
+Image::height() const 
+{
+    return arr_[0].rows();
+}
+
+int
+Image::width() const 
+{
+    return arr_[0].cols();
+}
+
+int
+Image::d_size() const 
+{
+    return height() * width() * channels;
 }
 
 Image & 
 Image::operator=(Image const & other)
 {
-    h = other.h;
-    w = other.w;
-    c = other.c;
-    d_size = other.d_size;
-    delete [] data;
     delete [] arr_;
-    data = new internal_dtype[d_size]; 
-    for (int i = 0; i < d_size; ++i) {
-        data[i] = other.data[i];
-    }
-    arr_ = new Mtype[c];
-    for (int i = 0; i < c; ++i) {
+    channels = other.channels;
+    arr_ = new Mtype[channels];
+    for (int i = 0; i < channels; ++i) {
         arr_[i] = other.arr_[i];
     }
     return *this;
-}
-
-Mtype &
-Image::red()
-{
-    return arr_[0];
-}
-
-Mtype &
-Image::green()
-{
-    return arr_[1];
-}
-
-Mtype &
-Image::blue()
-{
-    return arr_[2];
 }
 
 const Mtype & 
@@ -118,10 +110,13 @@ Image::operator[] (std::size_t i) {
 Image & 
 Image::operator+=(Image const & other){
     // TODO assert?
-    if ((h != other.h) || (w != other.w) || (c != other.c)) {
+    if ((height() != other.height()) || 
+          (width() != other.width()) || 
+          (channels != other.channels)
+          ) {
         throw "Image size not match\n";
     }
-    for (int i = 0; i < c; ++i) {
+    for (int i = 0; i < channels; ++i) {
         arr_[i] += other[i];  
     }
     return *this;
@@ -154,5 +149,24 @@ imsave(char const *filename, Image const & out)
 {
     const int component = 3;
     const int quality = 100;
-    stbi_write_jpg(filename, out.w, out.h, component, out.data, quality);
+    int h = out.height();
+    int w = out.width();
+    int c = out.channels;
+
+    internal_dtype *data = new internal_dtype[h * w * c];
+    
+    Eigen::Matrix<internal_dtype, Eigen::Dynamic, Eigen::Dynamic> mat_out[3];
+    mat_out[0]= out[0].cast<internal_dtype>();
+    mat_out[1]= out[1].cast<internal_dtype>();
+    mat_out[2]= out[2].cast<internal_dtype>();
+
+    // 用memcpy？
+    for (int i = 0; i != h; ++i) {
+        for (int j = 0; j != w; ++j) {
+            for (int k = 0; k != c; ++k) {
+                data[i * w * c + j * c + k] = mat_out[k](i, j);
+            }
+        }
+    }
+    stbi_write_jpg(filename, w, h, component, data, quality);
 }
