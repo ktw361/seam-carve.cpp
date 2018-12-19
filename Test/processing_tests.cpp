@@ -102,3 +102,7 @@ TEST_F(ProcessingTest, carve_one_column) {
     };
     compare_row_and_col(img, ep_out_1);
 }
+
+TEST_F(ProcessingTest, process_seam) {
+    TODO
+}
