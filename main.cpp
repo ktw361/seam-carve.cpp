@@ -6,7 +6,7 @@
 #include "processing.h"
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 //    if (argc != 5) {
 //        std::cerr << "usage: carve.py <h/w> <scale> <image_in> <image_out>" << std::endl;
@@ -16,6 +16,7 @@ main(int argc, char **argv)
     argv[2] = "0.99";
     argv[3] = "/home/damon/QtWorkSapce/carveCpp/imgs/scene.jpg";
     argv[4] = "/home/damon/QtWorkSapce/carveCpp/build/out.jpg";
+    const char seam_f[] = "/home/damon/QtWorkSapce/carveCpp/build/seam.jpg";
     const char which_axis = *argv[1];
     double scale = atof(argv[2]);
     const char *in_filename = argv[3];
@@ -29,11 +30,14 @@ main(int argc, char **argv)
         Image im_out = out.first;
         Image seam = out.second;
         imsave(out_filename, im_out);
+        imsave(seam_f, seam);
     }
     else if (which_axis == 'w') {
         auto out = horizontal_carving(img, scale);
         Image im_out = out.first;
         Image seam = out.second;
+        imsave(out_filename, im_out);
+        imsave(seam_f, seam);
     }
     else {
         std::cerr << "usage: carve.py <h/w> <scale> <image_in> <image_out> " << std::endl;

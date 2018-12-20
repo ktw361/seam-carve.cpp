@@ -5,7 +5,7 @@
 
 #define I_channels  3
 
-typedef double Dtype;
+typedef float Dtype;
 typedef Eigen::Array<Dtype, Eigen::Dynamic, Eigen::Dynamic > Mtype;
 typedef Mtype::Index Indtype;
 typedef Eigen::Array<Indtype, Eigen::Dynamic, Eigen::Dynamic> MIndtype;
@@ -41,6 +41,7 @@ public:
     const Mtype & operator[] (std::size_t i) const;
     Mtype & operator[] (std::size_t i);
     // (i, j) 返回第一个维度
+    // 重载写成(i, j, k)???
     virtual Dtype & operator() (Indtype, Indtype) const;
     Dtype & operator() (Indtype, Indtype);
 

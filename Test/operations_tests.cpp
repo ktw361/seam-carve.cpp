@@ -40,9 +40,10 @@ TEST(ChannelSumTest, PositiveNos) {
 TEST(asMtypeTest, PositiveNos) {
     std::vector<Indtype> vec { 1,2,3,4,5,6 };
     MIndtype ind_mat = asMtype(vec, 3, 2);
-    for (int i = 0; i!= 3; ++i) {
-        for (int j = 0; j !=2; ++j) {
-            EXPECT_EQ(ind_mat(i,j ),   i + j * 3 + 1) << i << ' '<<  j << '\n' ;
+    int cnt = 1;
+    for (int j = 0; j !=2; ++j) {
+        for (int i = 0; i!= 3; ++i) {
+            EXPECT_EQ(ind_mat(i,j ),   cnt++) << i << ' '<<  j << '\n' ;
         }
     }
 }

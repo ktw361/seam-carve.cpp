@@ -4,18 +4,78 @@
 
 using namespace Eigen;
 
-//void comparaMtype(Mtype const & a, Mtype const & b) {
-//    ASSERT_EQ(a.size(),     b.size());
-//    ASSERT_EQ(a.rows(),     b.rows());
-//    ASSERT_EQ(a.cols(),     b.cols());
-//    for (int i=0; i!= a.rows(); ++i) {
-//        for (int j=0; j!= a.rows(); ++j) {
-//            EXPECT_EQ(a(i,j),   b(i, j)) << "i:j is: " << i < ' ' << j << '\n';
-//        }
-//    }
-//}
+class ConvolveTest: public ::testing::Test {
+protected:
+    void SetUp() override {
+    }
 
-TEST(PaddingReflectTest, PositiveNos) {
+    Image make_lin_img(int h, int w) {
+        // make linear , and stack to 3 channels
+    	Mtype mat1(w, h);
+    	for (int i = 0; i != h * w; ++i) {
+    	    mat1(i) = i;
+    	}
+    	Mtype mat = mat1.array().transpose();
+		return Mrepeat(mat);
+    }
+ 
+    void compare_row_and_col(Image const & a, Image const & b) {
+        ASSERT_EQ(a.height(),   b.height());
+        ASSERT_EQ(a.width(),    b.width());
+        ASSERT_EQ(a.channels,   b.channels);
+        for (int i = 0; i != a.height(); ++i) {
+            for (int j = 0; j != a.width(); ++j) {
+                for (int k = 0; k != a.channels; ++k) {
+                    EXPECT_EQ(a[k](i, j),   b[k](i,j)) << i << ' ' << j << '\n';
+                }
+            }
+        }
+    } // void
+
+    template<typename MT>
+    void compare_row_and_col(MT const & a, std::vector<Dtype> & vec) {
+        ASSERT_EQ(a.size(),   vec.size());
+        for (int i = 0; i != a.rows(); ++i) {
+            for (int j = 0; j != a.cols(); ++j) {
+                    EXPECT_EQ(
+                            a(i, j),   
+                            vec[i * a.cols() + j]
+                        ) << i << ' ' << j << '\n';
+            }
+        }
+    } // void
+
+    void compare_row_and_col(Image const & a, std::vector<Dtype> & vec) {
+        ASSERT_EQ(a.d_size(),   vec.size());
+        for (int i = 0; i != a.height(); ++i) {
+            for (int j = 0; j != a.width(); ++j) {
+                for (int k = 0; k != a.channels; ++k) {
+                    EXPECT_EQ(
+                            a[k](i, j),   
+                            vec[i * a.width() * a.channels + j * a.channels + k]
+                        ) 
+                        << "i,j,k= "<< i << ',' << j << ',' << k << '\n';
+                }
+            }
+        }
+    } // void
+
+    template <typename T>
+    void compare_vec(std::vector<T> const & a, std::vector<T> const & b) {
+        ASSERT_EQ(a.size(),     b.size());
+        for (std::size_t i = 0; i != a.size(); ++i) {
+            EXPECT_EQ(a[i],     b[i]);
+        }
+    }
+    void print_mat(Mtype const & mat) {
+        std::cerr << mat << std::endl;
+    }
+
+
+    Image img_lin_3_4;
+};
+
+TEST_F(ConvolveTest, PaddingReflect) {
     Mtype a1(3,3);
     for (int i=0; i!= a1.size(); ++i) {
         a1(i) = i + 1;
@@ -39,7 +99,7 @@ TEST(PaddingReflectTest, PositiveNos) {
     }
 }
 
-TEST(ConvOnImage, PositiveNos) {
+TEST_F(ConvolveTest, ConvOnImage) {
     //
     // make linspace
     //
@@ -70,7 +130,7 @@ TEST(ConvOnImage, PositiveNos) {
 //
 // Conv test of *ZeroPad* mode
 //
-TEST(ConvZeroPadTest, PositiveNos) {
+TEST_F(ConvolveTest, ConvZeroPad) {
     Mtype a = Mtype::Ones(3,3);
     Mtype kern_a = Mtype::Ones(3,3);
 
@@ -94,7 +154,7 @@ TEST(ConvZeroPadTest, PositiveNos) {
 //
 // Conv test of Reflect mode 1
 //
-TEST(ConvRefPadTest1, PositiveNos) {
+TEST_F(ConvolveTest, ConvRefPad) {
     Mtype a1(3,3);
     for (int i=0; i!= a1.size(); ++i) {
         a1(i) = i;
@@ -119,7 +179,7 @@ TEST(ConvRefPadTest1, PositiveNos) {
 //
 // Conv test of Reflect mode 2
 //
-TEST(ConvRefPadTest2, PositiveNos) {
+TEST_F(ConvolveTest, ConvRefPad2) {
     Mtype mat(4,5);
     for (int i = 0; i != 4; ++i ) {
         for (int j = 0; j != 5; ++j) {

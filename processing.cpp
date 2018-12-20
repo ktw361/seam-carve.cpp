@@ -3,6 +3,7 @@
 #include <utility>
 #include <vector>
 #include <iterator>
+#include <cmath>
 //#debue
 #include <iostream>
 
@@ -65,20 +66,29 @@ process_seam(Image const & original, MIndtype removed)
     int num_seam = removed.cols();
     Image image_seam = original;
 
+//    int ind_start = 1;
+//    for (int i = ind_start; i != h; ++i) {
+//        for (int j = 0; j != i - 1; ++j) {
+//            removed.row(i) = (removed.row(i) > removed.row(j)).select(
+//                    removed.row(i) + 1, 
+//                    removed.row(i)
+//                    );
+//        }
+//    }
     int ind_start = 1;
-    for (int i = ind_start; i != h; ++i) {
-        for (int j = 0; j != i - 1; ++j) {
-            removed.row(i) = (removed.row(i) > removed.row(j)).select(
-                    removed.row(i) + 1, 
-                    removed.row(i)
+    for (int j = ind_start; j != num_seam; ++j) {
+        for (int i = 0; i != j - 1; ++i) {
+            removed.col(i) = (removed.col(i) >= removed.col(j)).select(
+                    removed.col(i) + 1, 
+                    removed.col(i)
                     );
         }
     }
     for (int i = 0; i != h; ++i) {
         for (int j = 0; j != num_seam; ++j) {
-            image_seam(i, removed(i, j)) = 255.0;
-            image_seam(i, removed(i, j)) = 0.0;
-            image_seam(i, removed(i, j)) = 0.0;
+            image_seam[0](i, removed(i, j)) = 255.0;
+            image_seam[1](i, removed(i, j)) = 0.0;
+            image_seam[2](i, removed(i, j)) = 0.0;
         }
     }
     return image_seam;
@@ -125,15 +135,15 @@ std::pair<Image, Image>
 horizontal_carving(Image const & image, double const scale)
 {
     int h = image.height(), w = image.width();
-    int w_finish = static_cast<Indtype>(w * scale);
+    int w_finish = static_cast<Indtype>(std::round(w * scale));
 
     Image img_ret = image;
     std::vector<Indtype> pick_list_all;
 
     for (int i = 0; i != w - w_finish; ++i) {
         std::cout << " In " << i << " of " << w - w_finish<< std::endl;
-        auto carve_ret = carve_one_column(image);
-        Image img_ret = carve_ret.first;
+        auto carve_ret = carve_one_column(img_ret);
+        img_ret = carve_ret.first;
         std::vector<Indtype> pick_list = carve_ret.second;
         std::reverse(pick_list.begin(), pick_list.end());
         pick_list_all.insert(
