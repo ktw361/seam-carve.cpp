@@ -12,7 +12,10 @@ Image
 channel_sum(Image const & img);
 
 Image
-rotate90(Image const & img);
+rotate90aclk(Image const & img);
+
+Image
+rotate90clk(Image const & img);
 
 Image 
 Mrepeat(Mtype const & mat); 

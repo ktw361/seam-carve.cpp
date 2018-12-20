@@ -13,8 +13,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "inc/stb_image_write.h"
 
-Image::Image(): channels(0), arr_(nullptr)
+Image::Image(int t_c): channels(t_c)
 {
+    arr_ = new Mtype[channels];
 }
 
 Image::Image(int const t_h, int const t_w, int const t_c): channels(t_c)

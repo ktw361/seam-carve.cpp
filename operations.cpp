@@ -27,11 +27,21 @@ channel_sum(Image const & img)
 }
 
 Image
-rotate90(Image const & img)
+rotate90aclk(Image const & img)
 {
-    Image ret = img;
+    Image ret(3);
     for (int i = 0; i != ret.channels; ++i ) {
-        ret[i] = ret[i].transpose().colwise().reverse();
+        ret[i] = img[i].transpose().colwise().reverse();
+    }
+    return ret;
+}
+
+Image
+rotate90clk(Image const & img)
+{
+    Image ret(3);
+    for (int i = 0; i != ret.channels; ++i ) {
+        ret[i] = img[i].transpose().rowwise().reverse();
     }
     return ret;
 }

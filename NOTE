@@ -2,3 +2,6 @@ real    4m39.324s
 user    26m52.724s
 sys 0m6.110s
 
+TODO
+1. numba关掉 比较
+2. 固定尺寸卷机矩阵乘法
