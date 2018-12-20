@@ -26,7 +26,7 @@ public:
     // const 对象的成员也是const？
     Mtype * arr_; // 用智能指针？
 
-    Image();
+    Image(int t_c);
     Image(int const t_h, int const t_w, int const t_c);
     Image(internal_dtype const *data, int const t_h, int const t_w, int const t_c);
     Image(Mtype const &);

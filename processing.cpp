@@ -162,11 +162,11 @@ horizontal_carving(Image const & image, double const scale)
 std::pair<Image, Image>
 vertical_carving(Image const & image, double const scale)
 {
-    Image img = rotate90(image);
+    Image img = rotate90aclk(image);
     // ??? 构造一个新的？
     auto hcarve_ret = horizontal_carving(img, scale);
-    img = rotate90(hcarve_ret.first);
-    Image image_seam = rotate90(hcarve_ret.second);
+    img = rotate90clk(hcarve_ret.first);
+    Image image_seam = rotate90clk(hcarve_ret.second);
 
     return {img, image_seam};
 }
