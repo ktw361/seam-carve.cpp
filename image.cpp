@@ -161,29 +161,19 @@ imread(char const *filename)
 void 
 imsave(char const *filename, Image const & out)
 {
-    const int component = 3;
+    const int component = out.channels;
     const int quality = 100;
     int h = out.height();
     int w = out.width();
     int c = out.channels;
 
     internal_dtype *data = new internal_dtype[h * w * c];
-    
-    Eigen::Matrix<internal_dtype, Eigen::Dynamic, Eigen::Dynamic> mat_out[3];
-    mat_out[0]= out[0].cast<internal_dtype>();
-    if (c == 1) {
-        mat_out[1]= out[1].cast<internal_dtype>();
-        mat_out[2]= out[2].cast<internal_dtype>();
-    } else {
-        mat_out[1]= mat_out[0];
-        mat_out[2]= mat_out[0];
-    }
-
     // 用memcpy？
     for (int i = 0; i != h; ++i) {
         for (int j = 0; j != w; ++j) {
             for (int k = 0; k != c; ++k) {
-                data[i * w * c + j * c + k] = mat_out[k](i, j);
+                data[i * w * c + j * c + k] = out[k](i,j);
+                // 不要cast， cast图之后反而是灰度图片？？ 
             }
         }
     }

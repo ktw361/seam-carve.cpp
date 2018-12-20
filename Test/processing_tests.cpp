@@ -33,8 +33,8 @@ protected:
         }
     } // void
 
-    template<typename MT>
-    void compare_row_and_col(MT const & a, std::vector<Dtype> & vec) {
+    template<typename MT = Mtype, typename DT = Dtype>
+    void compare_row_and_col(MT const & a, std::vector<DT> & vec) {
         ASSERT_EQ(a.size(),   vec.size());
         for (int i = 0; i != a.rows(); ++i) {
             for (int j = 0; j != a.cols(); ++j) {
@@ -46,7 +46,8 @@ protected:
         }
     } // void
 
-    void compare_row_and_col(Image const & a, std::vector<Dtype> & vec) {
+    template<typename DT = Dtype>
+    void compare_row_and_col(Image const & a, std::vector<DT> & vec) {
         ASSERT_EQ(a.d_size(),   vec.size());
         for (int i = 0; i != a.height(); ++i) {
             for (int j = 0; j != a.width(); ++j) {
@@ -54,14 +55,31 @@ protected:
                     EXPECT_EQ(
                             a[k](i, j),   
                             vec[i * a.width() * a.channels + j * a.channels + k]
-                        ) << i << ' ' << j << '\n';
+                        ) 
+                        << "i,j,k= "<< i << ',' << j << ',' << k << '\n';
                 }
             }
         }
     } // void
+
+    template <typename T = Dtype>
+    void compare_vec(std::vector<T> const & a, std::vector<T> const & b) {
+        ASSERT_EQ(a.size(),     b.size());
+        for (std::size_t i = 0; i != a.size(); ++i) {
+            EXPECT_EQ(a[i],     b[i]);
+        }
+    }
+
     void print_mat(Mtype const & mat) {
         std::cerr << mat << std::endl;
     }
+
+    void print3d(Image const & img) {
+        for (int i = 0; i!= img.channels; ++i) {
+            print_mat(img[i]);
+        }
+    }
+
 
     Image img_lin_3_4;
 };
@@ -100,9 +118,88 @@ TEST_F(ProcessingTest, carve_one_column) {
     std::vector<Dtype> ep_out_1 = {
         1.0,1.0,1.0,2.0,2.0,2.0,3.0,3.0,3.0,5.0,5.0,5.0,6.0,6.0,6.0,7.0,7.0,7.0,9.0,9.0,9.0,10.0,10.0,10.0,11.0,11.0,11.0,
     };
+    std::vector<Indtype> ep_out_2 = {
+        0, 0, 0,
+    };
     compare_row_and_col(img, ep_out_1);
+    // TODO 两个相同模板？就可以不用参数了？
+    compare_vec<Indtype>(pick_list,  ep_out_2);
 }
 
 TEST_F(ProcessingTest, process_seam) {
-    TODO
+    auto out = carve_one_column(img_lin_3_4);
+    auto pick_list = out.second;
+
+    decltype(pick_list) pick_list_all;
+    pick_list_all.insert(
+            pick_list_all.end(),
+            std::make_move_iterator(pick_list.begin()),
+            std::make_move_iterator(pick_list.end())
+            );
+    auto removed = asMtype(pick_list_all, 3, 4 - 3);
+    auto image_seam = process_seam(img_lin_3_4, removed);
+    std::vector<Dtype> ep_seam = {
+        255.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 255.0, 0.0, 0.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 255.0, 0.0, 0.0, 9.0, 9.0, 9.0, 10.0, 10.0, 10.0, 11.0, 11.0, 11.0, 
+    };
+    compare_row_and_col(image_seam,  ep_seam);
+
+    // Do it one more time
+    out = carve_one_column(out.first);
+    pick_list = out.second;
+    pick_list_all.insert(
+            pick_list_all.end(),
+            std::make_move_iterator(pick_list.begin()),
+            std::make_move_iterator(pick_list.end())
+            );
+    std::vector<Indtype> pick_ep = {
+        0, 0, 0, 0, 0, 0,
+    };
+    compare_vec<Indtype>(pick_list_all, pick_ep);
+    removed = asMtype(pick_list_all, 3, 4 - 2);
+    compare_row_and_col<MIndtype, Indtype>(removed,    pick_ep);
+    image_seam = process_seam(img_lin_3_4, removed);
+
+    ep_seam = {
+        255.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 255.0, 0.0, 0.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 255.0, 0.0, 0.0, 9.0, 9.0, 9.0, 10.0, 10.0, 10.0, 11.0, 11.0, 11.0, 
+    };
+    compare_row_and_col(image_seam, ep_seam);
+}
+
+TEST_F(ProcessingTest, horizontal_carving_0_2) {
+    auto out = horizontal_carving(img_lin_3_4, 0.2);
+
+    std::vector<Dtype> exp_img = {
+        3.0, 3.0, 3.0, 7.0, 7.0, 7.0, 11.0, 11.0, 11.0, 
+    };
+    std::vector<Dtype> exp_seam = {
+        255.0, 0.0, 0.0, 255.0, 0.0, 0.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 255.0, 0.0, 0.0, 255.0, 0.0, 0.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 255.0, 0.0, 0.0, 255.0, 0.0, 0.0, 10.0, 10.0, 10.0, 11.0, 11.0, 11.0, 
+    };
+    compare_row_and_col(out.first, exp_img);
+    compare_row_and_col(out.second, exp_seam);
+}
+
+TEST_F(ProcessingTest, horizontal_carving_0_5) {
+    auto out = horizontal_carving(img_lin_3_4, 0.5);
+
+    std::vector<Dtype> exp_img = {
+        2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 10.0, 10.0, 10.0, 11.0, 11.0, 11.0, 
+    };
+    std::vector<Dtype> exp_seam = {
+        255.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 255.0, 0.0, 0.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 255.0, 0.0, 0.0, 9.0, 9.0, 9.0, 10.0, 10.0, 10.0, 11.0, 11.0, 11.0, 
+    };
+    compare_row_and_col(out.first, exp_img);
+    compare_row_and_col(out.second, exp_seam);
+}
+
+TEST_F(ProcessingTest, horizontal_carving_0_8) {
+    auto out = horizontal_carving(img_lin_3_4, 0.8);
+
+    std::vector<Dtype> exp_img = {
+1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 9.0, 9.0, 9.0, 10.0, 10.0, 10.0, 11.0, 11.0, 11.0, 
+    };
+    std::vector<Dtype> exp_seam = {
+255.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 255.0, 0.0, 0.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 255.0, 0.0, 0.0, 9.0, 9.0, 9.0, 10.0, 10.0, 10.0, 11.0, 11.0, 11.0, 
+    };
+    compare_row_and_col(out.first, exp_img);
+    compare_row_and_col(out.second, exp_seam);
 }
