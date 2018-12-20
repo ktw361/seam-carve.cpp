@@ -5,3 +5,11 @@ sys 0m6.110s
 TODO
 1. numba关掉 比较
 2. 固定尺寸卷机矩阵乘法
+3. cmkae -> release
+4.transposeInPlace()
+
+template eigen lazy eval
+
+valgrind | perf
+矩阵乘法benchmark
+xtensor

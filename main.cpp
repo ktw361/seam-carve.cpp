@@ -12,7 +12,7 @@ main(int argc, char *argv[])
 //        std::cerr << "usage: carve.py <h/w> <scale> <image_in> <image_out>" << std::endl;
 //        return -1;
 //    }
-    argv[1] = "h";
+    argv[1] = "w";
     argv[2] = "0.99";
     argv[3] = "/home/damon/QtWorkSapce/carveCpp/imgs/scene.jpg";
     argv[4] = "/home/damon/QtWorkSapce/carveCpp/build/out.jpg";
