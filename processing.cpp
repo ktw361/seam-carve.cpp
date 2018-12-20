@@ -21,8 +21,11 @@ calc_energy(Image const & img)
                0., 0., 0.,
                -1, -2, -1;
     Mtype kern_dv = kern_du.transpose();
-    Image filter_du = Mrepeat(kern_du);
-    Image filter_dv = Mrepeat(kern_dv);
+    auto flipdg = [&](Mtype m) {
+        return m.colwise().reverse().rowwise().reverse();
+    };
+    Image filter_du = Mrepeat(flipdg(kern_du));
+    Image filter_dv = Mrepeat(flipdg(kern_dv));
 
     Image convolved = absolute(convolve(img, filter_du, Reflect)) + 
                       absolute(convolve(img, filter_dv, Reflect));

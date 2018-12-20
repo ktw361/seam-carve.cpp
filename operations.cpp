@@ -6,6 +6,9 @@
 #include "image.h"
 #include "inc/Eigen/Dense"
 
+#define K_SIZE 3
+using namespace Eigen;
+
 Image
 absolute(Image const & img) 
 {
@@ -116,19 +119,23 @@ Mtype
 convolve(Mtype const & img, Mtype const & kern, ConvMode mode)
 {
     int rows = img.rows(), cols = img.cols();
-    int k_h = kern.rows(), k_w = kern.cols();
+//    int k_h = kern.rows(), k_w = kern.cols();
 
     Mtype img_ = make_padding(img, kern, mode);
     Mtype ret(rows, cols);
-    auto flipdg = [&](Mtype m) {
-        return m.colwise().reverse().rowwise().reverse();
-    };
+//    auto flipdg = [&](Mtype m) {
+//        return m.colwise().reverse().rowwise().reverse();
+//    };
+//            Mtype kern_tmp = kern;
+//            VectorXf tmp2(Map<VectorXf>(kern_tmp.data(), K_SIZE * K_SIZE ));
     #pragma omp parallel for
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
+//            RowVectorXf tmp1(Map<RowVectorXf>(img_.block<K_SIZE, K_SIZE>(i, j).data(), K_SIZE * K_SIZE));
+//            ret(i, j) = tmp1 * tmp2;
             ret(i, j) = (
-                    img_.block(i, j, k_h, k_w).array() * 
-                    flipdg(kern).array()
+                    img_.block<K_SIZE, K_SIZE>(i, j).array() * 
+                    kern.array()
                     ).sum();
         }
     }
