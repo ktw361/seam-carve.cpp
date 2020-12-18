@@ -89,7 +89,7 @@ Image::d_size() const
 Image & 
 Image::operator=(Image const & other)
 {
-    delete [] arr_;
+    delete[] arr_;
     channels = other.channels;
     arr_ = new Mtype[channels];
     for (int i = 0; i < channels; ++i) {
